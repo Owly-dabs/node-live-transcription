@@ -146,26 +146,28 @@ wss.on('connection', async (clientWs, request) => {
   const model = url.searchParams.get('model') || 'nova-3';
   const language = url.searchParams.get('language') || 'en';
   const smart_format = url.searchParams.get('smart_format') || 'true';
-  const encoding = url.searchParams.get('encoding') || 'linear16';
-  const sample_rate = url.searchParams.get('sample_rate') || '16000';
-  const channels = url.searchParams.get('channels') || '1';
+   const encoding = url.searchParams.get('encoding') || 'linear16';
+   const sample_rate = url.searchParams.get('sample_rate') || '16000';
+   const channels = url.searchParams.get('channels') || '1';
+   const multichannel = url.searchParams.get('multichannel') || 'false';
 
-  console.log(`Connecting to Deepgram STT: model=${model}, language=${language}, encoding=${encoding}, sample_rate=${sample_rate}, channels=${channels}`);
+   console.log(`Connecting to Deepgram STT: model=${model}, language=${language}, encoding=${encoding}, sample_rate=${sample_rate}, channels=${channels}, multichannel=${multichannel}`);
 
   let connection;
   let clientMessageCount = 0;
   let deepgramMessageCount = 0;
 
   try {
-    // Create Deepgram SDK connection
-    connection = await deepgramClient.listen.v1.createConnection({
-      model,
-      language,
-      smart_format: smart_format === 'true',
-      encoding,
-      sample_rate: parseInt(sample_rate, 10),
-      channels: parseInt(channels, 10),
-    });
+     // Create Deepgram SDK connection
+     connection = await deepgramClient.listen.v1.createConnection({
+       model,
+       language,
+       smart_format: smart_format === 'true',
+       encoding,
+       sample_rate: parseInt(sample_rate, 10),
+       channels: parseInt(channels, 10),
+       multichannel: multichannel === 'true',
+     });
 
     // Store SDK connection reference for graceful shutdown
     sdkConnections.set(clientWs, connection);
