@@ -1,0 +1,106 @@
+openapi: 3.1.0
+info:
+  title: STT
+  version: 1.0.0
+  description: >
+    Minimal Speech-to-Text scaffolding for Deepgram starter applications.
+    Upload audio file or provide URL via multipart form data, get a transcript JSON.
+
+paths:
+  /stt/transcribe:
+    post:
+      summary: Transcribe audio file or URL
+      description: Accepts audio file upload or URL via multipart form data and returns transcription.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Audio or video file to transcribe
+                url:
+                  type: string
+                  format: uri
+                  description: URL pointing to audio file to transcribe
+                model:
+                  type: string
+                  description: STT model to use for transcription (e.g., 'nova-3', 'nova-2', 'base')
+              oneOf:
+                - required: [file]
+                - required: [url]
+      responses:
+        "200":
+          description: Successful transcription response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transcript"
+        "4XX":
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    Transcript:
+      type: object
+      required: [transcript]
+      properties:
+        transcript:
+          type: string
+          description: Full transcribed text
+        words:
+          type: array
+          description: Word-level timing and speaker information
+          items:
+            type: object
+            required: [text, start, end]
+            properties:
+            text:
+              type: string
+              description: The transcribed word
+            start:
+              type: number
+              description: Start time in seconds
+            end:
+              type: number
+              description: End time in seconds
+            speaker:
+              type: string
+              description: Speaker identifier (when diarization is enabled)
+        duration:
+          type: number
+          description: Total audio duration in seconds
+        metadata:
+          type: object
+          description: Additional transcription metadata
+          additionalProperties: true
+
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [type, code, message]
+          properties:
+            type:
+              type: string
+              description: Error category
+            code:
+              type: string
+              description: Machine-readable error code
+              enum: [AUDIO_TOO_LONG, BAD_AUDIO, MODEL_NOT_FOUND, INVALID_URL]
+            message:
+              type: string
+              description: Human-readable error message
+            details:
+              type: object
+              description: Additional error context
+              additionalProperties: true

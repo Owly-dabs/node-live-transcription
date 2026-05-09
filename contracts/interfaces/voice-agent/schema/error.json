@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Error",
+  "description": "Agent error response for starter applications",
+  "type": "object",
+  "required": [
+    "type",
+    "description",
+    "code"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": [
+        "Error"
+      ],
+      "description": "Message type identifier"
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable error description"
+    },
+    "code": {
+      "type": "string",
+      "description": "Machine-readable error code",
+      "enum": [
+        "INVALID_SETTINGS",
+        "MISSING_API_KEY",
+        "AUDIO_FORMAT_ERROR",
+        "CONNECTION_FAILED",
+        "PROVIDER_ERROR"
+      ]
+    }
+  }
+}

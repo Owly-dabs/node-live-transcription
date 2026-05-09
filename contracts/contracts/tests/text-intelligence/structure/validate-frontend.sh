@@ -1,0 +1,1 @@
+../../transcription/structure/validate-frontend.sh

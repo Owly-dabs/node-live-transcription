@@ -1,0 +1,305 @@
+asyncapi: 3.0.0
+info:
+  title: Live STT Interface Contract
+  version: 1.0.0
+  description: |
+    Minimal live speech-to-text scaffolding for Deepgram starter applications.
+    Send binary audio data, get real-time transcripts via WebSocket.
+  contact:
+    email: devrel@deepgram.com
+    url: https://community.deepgram.com
+    name: Deepgram Developer Relations
+  license:
+    name: Privacy Notice
+    url: https://deepgram.com/privacy/
+  externalDocs:
+    description: Visit our docs to learn more about using Deepgram APIs
+    url: https://developers.deepgram.com
+servers:
+  starter-app:
+    host: "{host}:{port}"
+    protocol: wss
+    description: Starter app development server
+    security:
+      - $ref: "#/components/securitySchemes/ApiKeyAuth"
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: httpApiKey
+      in: header
+      name: Authorization
+      description: API key authentication (handled by starter app proxy)
+  operationTraits:
+    AuthTrait:
+      security:
+        - $ref: "#/components/securitySchemes/ApiKeyAuth"
+  schemas:
+    Model:
+      type: string
+      description: STT model to use for transcription
+      default: nova-3
+      enum:
+        - nova-3
+        - nova-2
+        - nova
+        - enhanced
+        - base
+      examples:
+        - nova-3
+    Language:
+      type: string
+      description: BCP-47 language tag
+      default: en
+      examples:
+        - en
+        - es
+        - fr
+    TranscriptResult:
+      type: object
+      description: Real-time transcription result
+      required:
+        - type
+        - transcript
+        - is_final
+      properties:
+        type:
+          type: string
+          enum: [Results]
+          description: Message type identifier
+        transcript:
+          type: string
+          description: Transcribed text
+        is_final:
+          type: boolean
+          description: Whether transcript is final
+        speech_final:
+          type: boolean
+          description: Whether speech segment is final
+        duration:
+          type: number
+          description: Duration in seconds
+        start:
+          type: number
+          description: Start time in seconds
+        confidence:
+          type: number
+          description: Confidence score
+        words:
+          type: array
+          description: Word-level timing information
+          items:
+            type: object
+            required:
+              - word
+              - start
+              - end
+            properties:
+              word:
+                type: string
+                description: The transcribed word
+              start:
+                type: number
+                description: Start time in seconds
+              end:
+                type: number
+                description: End time in seconds
+              confidence:
+                type: number
+                description: Word confidence score
+        metadata:
+          type: object
+          description: Additional transcription metadata
+          additionalProperties: true
+    MetadataEvent:
+      type: object
+      description: Connection metadata event
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum: [Metadata]
+          description: Message type identifier
+        request_id:
+          type: string
+          format: uuid
+          description: Unique request identifier
+        model_info:
+          type: object
+          description: Model information
+          properties:
+            name:
+              type: string
+              description: Model name
+            version:
+              type: string
+              description: Model version
+        created:
+          type: string
+          format: date-time
+          description: Timestamp of event
+    ErrorEvent:
+      type: object
+      description: Error event
+      required:
+        - type
+        - error
+      properties:
+        type:
+          type: string
+          enum: [Error]
+          description: Message type identifier
+        error:
+          type: object
+          required:
+            - type
+            - code
+            - message
+          properties:
+            type:
+              type: string
+              description: Error category
+            code:
+              type: string
+              enum:
+                - INVALID_STREAM_URL
+                - STREAM_UNREACHABLE
+                - MODEL_NOT_FOUND
+                - CONNECTION_FAILED
+                - AUDIO_FORMAT_ERROR
+              description: Machine-readable error code
+            message:
+              type: string
+              description: Human-readable error message
+            details:
+              type: object
+              description: Additional error context
+              additionalProperties: true
+    AudioData:
+      type: string
+      format: binary
+      description: Binary audio data (any format supported by Deepgram)
+      contentType: application/octet-stream
+    ControlMessage:
+      type: object
+      description: "Control messages for managing the Live STT WebSocket connection"
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - KeepAlive
+            - Finalize
+            - CloseStream
+          description: |
+            Control message type:
+            - KeepAlive: Keep the WebSocket connection open
+            - Finalize: Finalize and flush any remaining audio in the buffer
+            - CloseStream: Request graceful closure of the transcription stream
+  messages:
+    AudioDataMessage:
+      name: AudioDataMessage
+      title: Audio Data
+      description: Binary audio chunks sent from client to server
+      contentType: application/octet-stream
+      payload:
+        $ref: "#/components/schemas/AudioData"
+    TranscriptResultMessage:
+      name: TranscriptResultMessage
+      title: Transcript Result
+      description: Real-time transcription result (interim or final)
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/TranscriptResult"
+    MetadataEventMessage:
+      name: MetadataEventMessage
+      title: Metadata Event
+      description: Connection metadata and model information
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/MetadataEvent"
+    ErrorEventMessage:
+      name: ErrorEventMessage
+      title: Error Event
+      description: Error information
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/ErrorEvent"
+    ControlMessage:
+      name: ControlMessage
+      title: Control Message
+      description: Control messages for managing the Live STT WebSocket connection
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/ControlMessage"
+channels:
+  LiveSTTStream:
+    address: /live-stt/stream
+    description: Live speech-to-text transcription via WebSocket
+    bindings:
+      ws:
+        query:
+          type: object
+          properties:
+            model:
+              $ref: "#/components/schemas/Model"
+            language:
+              $ref: "#/components/schemas/Language"
+    messages:
+      AudioData:
+        $ref: "#/components/messages/AudioDataMessage"
+      TranscriptResult:
+        $ref: "#/components/messages/TranscriptResultMessage"
+      MetadataEvent:
+        $ref: "#/components/messages/MetadataEventMessage"
+      ErrorEvent:
+        $ref: "#/components/messages/ErrorEventMessage"
+      Control:
+        $ref: "#/components/messages/ControlMessage"
+operations:
+  ConnectToStream:
+    action: send
+    channel:
+      $ref: "#/channels/LiveSTTStream"
+    description: Connect to live STT and send binary audio data
+    traits:
+      - $ref: "#/components/operationTraits/AuthTrait"
+    messages:
+      - $ref: "#/channels/LiveSTTStream/messages/AudioData"
+  SendControl:
+    action: send
+    channel:
+      $ref: "#/channels/LiveSTTStream"
+    description: "Send control messages (KeepAlive, Finalize, CloseStream) to manage the WebSocket connection"
+    traits:
+      - $ref: "#/components/operationTraits/AuthTrait"
+    messages:
+      - $ref: "#/channels/LiveSTTStream/messages/Control"
+  ReceiveTranscriptResult:
+    action: receive
+    channel:
+      $ref: "#/channels/LiveSTTStream"
+    description: Receive real-time transcription results (interim and final)
+    traits:
+      - $ref: "#/components/operationTraits/AuthTrait"
+    messages:
+      - $ref: "#/channels/LiveSTTStream/messages/TranscriptResult"
+  ReceiveMetadata:
+    action: receive
+    channel:
+      $ref: "#/channels/LiveSTTStream"
+    description: Receive connection metadata and model information
+    traits:
+      - $ref: "#/components/operationTraits/AuthTrait"
+    messages:
+      - $ref: "#/channels/LiveSTTStream/messages/MetadataEvent"
+  ReceiveError:
+    action: receive
+    channel:
+      $ref: "#/channels/LiveSTTStream"
+    description: Receive error events from the live transcription stream
+    traits:
+      - $ref: "#/components/operationTraits/AuthTrait"
+    messages:
+      - $ref: "#/channels/LiveSTTStream/messages/ErrorEvent"

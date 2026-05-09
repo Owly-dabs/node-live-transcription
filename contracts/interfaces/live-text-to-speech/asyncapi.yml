@@ -1,0 +1,280 @@
+asyncapi: 3.0.0
+info:
+  title: Live TTS Interface Contract
+  version: 1.0.0
+  description: |
+    Minimal live text-to-speech scaffolding for Deepgram starter applications.
+    Send text via WebSocket, get real-time audio synthesis.
+  contact:
+    name: Deepgram Support
+    url: https://developers.deepgram.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  starter-app:
+    host: "{host}:{port}" # Generic host with template variables
+    protocol: wss # Production standard protocol
+    description: Starter app development server
+    security:
+      - $ref: "#/components/securitySchemes/ApiKeyAuth"
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: httpApiKey
+      in: header
+      name: Authorization
+      description: API key authentication (handled by starter app proxy)
+  operationTraits:
+    AuthTrait:
+      security:
+        - $ref: "#/components/securitySchemes/ApiKeyAuth"
+  schemas:
+    Model:
+      type: string
+      description: TTS model to use for synthesis
+      examples:
+        - aura-2-asteria-en
+    TextMessage:
+      type: object
+      description: Text input for TTS synthesis
+      required:
+        - type
+        - text
+      properties:
+        type:
+          type: string
+          enum: [Speak]
+          description: Message type identifier
+        text:
+          type: string
+          description: Text to synthesize into speech
+          examples:
+            - "Hello, world!"
+    AudioChunk:
+      type: string
+      format: binary
+      description: Binary audio data chunk
+      contentType: application/octet-stream
+    MetadataEvent:
+      type: object
+      description: Connection metadata event
+      required:
+        - type
+        - request_id
+        - model_name
+        - model_version
+        - model_uuid
+      properties:
+        type:
+          type: string
+          enum: [Metadata]
+          description: Message type identifier
+        request_id:
+          type: string
+          format: uuid
+          description: Unique request identifier
+        model_name:
+          type: string
+          description: Name of the model being used
+        model_version:
+          type: string
+          description: Version of the model being used
+        model_uuid:
+          type: string
+          format: uuid
+          description: Unique identifier for the model
+    ErrorEvent:
+      type: object
+      description: Error event
+      required:
+        - type
+        - error
+      properties:
+        type:
+          type: string
+          enum: [Error]
+          description: Message type identifier
+        error:
+          type: object
+          required:
+            - type
+            - code
+            - message
+          properties:
+            type:
+              type: string
+              description: Error category
+            code:
+              type: string
+              enum:
+                - INVALID_TEXT
+                - MODEL_NOT_FOUND
+                - CONNECTION_FAILED
+                - AUDIO_GENERATION_ERROR
+              description: Machine-readable error code
+            message:
+              type: string
+              description: Human-readable error message
+            details:
+              type: object
+              description: Additional error context
+              additionalProperties: true
+    ControlMessage:
+      type: object
+      description: "Control messages for managing the Text to Speech WebSocket connection"
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - Flush
+            - Clear
+            - Close
+          description: |
+            Control message type:
+            - Flush: Flush forces the generation of audio the internal text buffer
+            - Clear: Clear internal text buffer (useful for handling interruptions)
+            - Close: Close the websocket connection immediately
+    ControlEvent:
+      type: object
+      description: "Server acknowledgment of control messages"
+      required:
+        - type
+        - sequence_id
+      properties:
+        type:
+          type: string
+          enum:
+            - Flushed
+            - Cleared
+          description: |
+            Control event type (server acknowledgment):
+            - Flushed: Acknowledgment that buffer has been flushed
+            - Cleared: Acknowledgment that buffer has been cleared
+        sequence_id:
+          type: number
+          description: The sequence ID of the control message being acknowledged
+  messages:
+    TextMessage:
+      name: TextMessage
+      title: Text Input
+      description: Text message for TTS synthesis
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/TextMessage"
+    AudioChunkMessage:
+      name: AudioChunkMessage
+      title: Audio Chunk
+      description: Binary audio data chunk
+      contentType: application/octet-stream
+      payload:
+        $ref: "#/components/schemas/AudioChunk"
+    MetadataEventMessage:
+      name: MetadataEventMessage
+      title: Metadata Event
+      description: Connection metadata and model information
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/MetadataEvent"
+    ErrorEventMessage:
+      name: ErrorEventMessage
+      title: Error Event
+      description: Error information
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/ErrorEvent"
+    ControlMessage:
+      name: ControlMessage
+      title: Control Message
+      description: Control messages for managing the Text to Speech WebSocket connection
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/ControlMessage"
+    ControlEventMessage:
+      name: ControlEventMessage
+      title: Control Event
+      description: Server acknowledgment of control messages
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/ControlEvent"
+channels:
+  LiveTTSStream:
+    address: /live-tts/stream
+    description: Live text-to-speech synthesis via WebSocket
+    bindings:
+      ws:
+        query:
+          type: object
+          properties:
+            model:
+              $ref: "#/components/schemas/Model"
+    messages:
+      TextMessage:
+        $ref: "#/components/messages/TextMessage"
+      AudioChunk:
+        $ref: "#/components/messages/AudioChunkMessage"
+      MetadataEvent:
+        $ref: "#/components/messages/MetadataEventMessage"
+      ErrorEvent:
+        $ref: "#/components/messages/ErrorEventMessage"
+      Control:
+        $ref: "#/components/messages/ControlMessage"
+      ControlEvent:
+        $ref: "#/components/messages/ControlEventMessage"
+operations:
+  SendText:
+    action: send
+    channel:
+      $ref: "#/channels/LiveTTSStream"
+    description: Send text for TTS synthesis
+    traits:
+      - $ref: "#/components/operationTraits/AuthTrait"
+    messages:
+      - $ref: "#/channels/LiveTTSStream/messages/TextMessage"
+  SendControl:
+    action: send
+    channel:
+      $ref: "#/channels/LiveTTSStream"
+    description: "Send control messages (Flush, Clear, Close) to manage the WebSocket connection"
+    traits:
+      - $ref: "#/components/operationTraits/AuthTrait"
+    messages:
+      - $ref: "#/channels/LiveTTSStream/messages/Control"
+  ReceiveAudioChunk:
+    action: receive
+    channel:
+      $ref: "#/channels/LiveTTSStream"
+    description: Receive real-time synthesized audio chunks
+    traits:
+      - $ref: "#/components/operationTraits/AuthTrait"
+    messages:
+      - $ref: "#/channels/LiveTTSStream/messages/AudioChunk"
+  ReceiveMetadata:
+    action: receive
+    channel:
+      $ref: "#/channels/LiveTTSStream"
+    description: Receive connection metadata and model information
+    traits:
+      - $ref: "#/components/operationTraits/AuthTrait"
+    messages:
+      - $ref: "#/channels/LiveTTSStream/messages/MetadataEvent"
+  ReceiveError:
+    action: receive
+    channel:
+      $ref: "#/channels/LiveTTSStream"
+    description: Receive error events from the live synthesis stream
+    traits:
+      - $ref: "#/components/operationTraits/AuthTrait"
+    messages:
+      - $ref: "#/channels/LiveTTSStream/messages/ErrorEvent"
+  ReceiveControlEvent:
+    action: receive
+    channel:
+      $ref: "#/channels/LiveTTSStream"
+    description: Receive control event acknowledgments (Flushed, Cleared) from the server
+    traits:
+      - $ref: "#/components/operationTraits/AuthTrait"
+    messages:
+      - $ref: "#/channels/LiveTTSStream/messages/ControlEvent"

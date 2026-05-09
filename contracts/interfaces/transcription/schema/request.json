@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RequestBody",
+  "description": "Audio file upload or URL for STT transcription (multipart/form-data)",
+  "type": "object",
+  "properties": {
+    "file": {
+      "type": "string",
+      "format": "binary",
+      "description": "Audio or video file to transcribe"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL pointing to audio file to transcribe"
+    },
+    "model": {
+      "type": "string",
+      "description": "STT model to use for transcription (e.g., 'nova-3', 'nova-2', 'base')"
+    }
+  },
+  "oneOf": [
+    {
+      "required": ["file"]
+    },
+    {
+      "required": ["url"]
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+../../transcription/structure/validate-contracts.sh

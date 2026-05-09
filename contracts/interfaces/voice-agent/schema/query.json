@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "QueryParameters",
+  "description": "Query parameters for Agent WebSocket connection (auth handled via WebSocket protocol)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {}
+}

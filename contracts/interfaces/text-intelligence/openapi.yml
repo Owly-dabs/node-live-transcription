@@ -1,0 +1,219 @@
+openapi: 3.1.0
+info:
+  title: Text Intelligence
+  version: 1.0.0
+  description: >
+    Minimal Text Intelligence scaffolding for Deepgram starter applications.
+    Send text, get intelligence insights.
+
+paths:
+  /text-intelligence/analyze:
+    post:
+      summary: Analyze text for intelligence insights
+      description: Accepts text input and returns analysis results.
+      parameters:
+        - name: language
+          in: query
+          required: false
+          schema:
+            type: string
+            description: Language code for analysis (en only). Defaults to 'en'.
+        - name: summarize
+          in: query
+          required: false
+          schema:
+            oneOf:
+              - type: boolean
+                description: Enable summarization (Read API boolean option)
+              - type: string
+                enum: [v2]
+                description: Summarization version (Listen API string option)
+            description: Enable text summarization. Required for successful analysis.
+        - name: topics
+          in: query
+          required: false
+          schema:
+            type: boolean
+            description: Enable topic detection
+        - name: sentiment
+          in: query
+          required: false
+          schema:
+            type: boolean
+            description: Enable sentiment analysis
+        - name: intents
+          in: query
+          required: false
+          schema:
+            type: boolean
+            description: Enable intent recognition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  required: [text]
+                  properties:
+                    text:
+                      type: string
+                      description: Text to analyze for intelligence insights
+                - type: object
+                  required: [url]
+                  properties:
+                    url:
+                      type: string
+                      format: uri
+                      description: URL pointing to text content to analyze
+              description: Either text or url must be provided (not both)
+      responses:
+        "200":
+          description: Successful analysis response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalysisResult"
+        "4XX":
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    AnalysisResult:
+      type: object
+      required: [results]
+      properties:
+        results:
+          type: object
+          properties:
+            summary:
+              type: object
+              properties:
+                text:
+                  type: string
+                  description: Generated summary of the analyzed text
+              description: Summary result (optional, included when summarize parameter is used)
+            topics:
+              type: object
+              description: Detected topics (optional, included when topics parameter is true)
+              properties:
+                segments:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      text:
+                        type: string
+                        description: Text segment
+                      start_word:
+                        type: number
+                        description: Starting word index
+                      end_word:
+                        type: number
+                        description: Ending word index
+                      topics:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            topic:
+                              type: string
+                              description: Detected topic
+                            confidence_score:
+                              type: number
+                              format: float
+                              description: Confidence score for the topic
+            sentiments:
+              type: object
+              description: Sentiment analysis (optional, included when sentiment parameter is true)
+              properties:
+                segments:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      text:
+                        type: string
+                        description: Text segment
+                      start_word:
+                        type: number
+                        description: Starting word index
+                      end_word:
+                        type: number
+                        description: Ending word index
+                      sentiment:
+                        type: string
+                        enum: [positive, negative, neutral]
+                        description: Sentiment classification for this segment
+                      sentiment_score:
+                        type: number
+                        format: float
+                        description: Sentiment score for this segment
+                average:
+                  type: object
+                  properties:
+                    sentiment:
+                      type: string
+                      enum: [positive, negative, neutral]
+                      description: Average sentiment classification
+                    sentiment_score:
+                      type: number
+                      format: float
+                      description: Average sentiment score
+            intents:
+              type: object
+              description: Detected intents (optional, included when intents parameter is true)
+              properties:
+                segments:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      text:
+                        type: string
+                        description: Text segment
+                      start_word:
+                        type: number
+                        description: Starting word index
+                      end_word:
+                        type: number
+                        description: Ending word index
+                      intents:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            intent:
+                              type: string
+                              description: Detected intent
+                            confidence_score:
+                              type: number
+                              format: float
+                              description: Confidence score for the intent
+
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [type, code, message]
+          properties:
+            type:
+              type: string
+              description: Error category
+            code:
+              type: string
+              description: Machine-readable error code
+              enum: [TEXT_TOO_LONG, INVALID_TEXT, MODEL_NOT_FOUND, EMPTY_TEXT, INVALID_URL]
+            message:
+              type: string
+              description: Human-readable error message
+            details:
+              type: object
+              description: Additional error context
+              additionalProperties: true

@@ -1,0 +1,71 @@
+openapi: 3.1.0
+info:
+  title: TTS
+  version: 1.0.0
+  description: >
+    Minimal Text-to-Speech scaffolding for Deepgram starter applications.
+    Send text, get audio bytes.
+
+paths:
+  /tts/synthesize:
+    post:
+      summary: Synthesize text to speech
+      description: Accepts text input and returns audio.
+      parameters:
+        - name: model
+          in: query
+          required: false
+          schema:
+            type: string
+            description: TTS model to use for synthesis (e.g., 'aura-2-apollo-en', 'aura-2-asteria-en', 'aura-2-iris-en')
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties:
+                text:
+                  type: string
+                  description: Text to synthesize into speech
+      responses:
+        "200":
+          description: Successful synthesis response
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+                description: Raw audio bytes
+        "4XX":
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [type, code, message]
+          properties:
+            type:
+              type: string
+              description: Error category
+            code:
+              type: string
+              description: Machine-readable error code
+              enum: [TEXT_TOO_LONG, INVALID_TEXT, MODEL_NOT_FOUND, EMPTY_TEXT]
+            message:
+              type: string
+              description: Human-readable error message
+            details:
+              type: object
+              description: Additional error context
+              additionalProperties: true

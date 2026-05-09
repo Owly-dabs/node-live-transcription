@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FluxProxyResponse",
+  "description": "Flux WebSocket proxy passes through responses from the Deepgram API. The response shape depends on the Deepgram API version and features used. This schema documents the minimum expected structure.",
+  "type": "object",
+  "required": [
+    "type"
+  ],
+  "properties": {
+    "type": {
+      "type": "string",
+      "description": "Message type identifier from Deepgram API"
+    }
+  },
+  "additionalProperties": true
+}

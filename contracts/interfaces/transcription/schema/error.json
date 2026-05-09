@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Error",
+  "description": "STT error response for starter applications",
+  "type": "object",
+  "required": [
+    "error"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "error": {
+      "type": "object",
+      "required": [
+        "type",
+        "code",
+        "message"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Error category"
+        },
+        "code": {
+          "type": "string",
+          "description": "Machine-readable error code",
+          "enum": [
+            "AUDIO_TOO_LONG",
+            "BAD_AUDIO",
+            "MODEL_NOT_FOUND",
+            "INVALID_URL"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "description": "Human-readable error message"
+        },
+        "details": {
+          "type": "object",
+          "description": "Additional error context",
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}
