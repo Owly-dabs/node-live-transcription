@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "QueryParameters",
+  "description": "Query parameters for Text Intelligence analysis",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "language": {
+      "type": "string",
+      "description": "Language code for analysis (en-only) Defaults to 'en'."
+    },
+    "summarize": {
+      "oneOf": [
+        {
+          "type": "boolean",
+          "description": "Enable summarization (Read API boolean option)"
+        },
+        {
+          "type": "string",
+          "enum": [
+            "v2"
+          ],
+          "description": "Summarization version (v1 no longer supported)"
+        }
+      ],
+      "description": "Enable text summarization"
+    },
+    "topics": {
+      "type": "boolean",
+      "description": "Enable topic detection"
+    },
+    "sentiment": {
+      "type": "boolean",
+      "description": "Enable sentiment analysis"
+    },
+    "intents": {
+      "type": "boolean",
+      "description": "Enable intent recognition"
+    }
+  }
+}

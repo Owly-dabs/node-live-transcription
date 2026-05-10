@@ -1,0 +1,39 @@
+{
+  "name": "starter-contracts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test:transcription": "vitest run interfaces/transcription/conformance/transcribe.spec.js",
+    "test:text-to-speech": "vitest run interfaces/text-to-speech/conformance/synthesize.spec.js",
+    "test:text-intelligence": "vitest run interfaces/text-intelligence/conformance/analyze.spec.js",
+    "test:live-transcription": "vitest run interfaces/live-transcription/conformance/stream.spec.js",
+    "test:live-text-to-speech": "vitest run interfaces/live-text-to-speech/conformance/synthesize.spec.js",
+    "test:flux": "vitest run interfaces/flux/conformance/stream.spec.js",
+    "test:voice-agent": "vitest run interfaces/voice-agent/conformance/converse.spec.js",
+    "test:session": "vitest run interfaces/shared/conformance/session.spec.js",
+    "test:node": "./tests/run-node-app.sh",
+    "test:node:stt": "./tests/run-node-app.sh stt",
+    "test:node:tts": "./tests/run-node-app.sh tts",
+    "test:node:live-stt": "./tests/run-node-app.sh live-stt",
+    "run:transcription": "./tests/run-transcription-app.sh",
+    "run:text-to-speech": "./tests/run-text-to-speech-app.sh",
+    "run:live-transcription": "./tests/run-live-transcription-app.sh",
+    "run:live-text-to-speech": "./tests/run-live-text-to-speech-app.sh",
+    "run:text-intelligence": "./tests/run-text-intelligence-app.sh",
+    "run:flux": "./tests/run-flux-app.sh",
+    "run:voice-agent": "./tests/run-voice-agent-app.sh"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "",
+  "packageManager": "pnpm@10.15.0",
+  "devDependencies": {
+    "@playwright/test": "^1.58.1",
+    "string-similarity": "^4.0.4",
+    "vitest": "3.2.4",
+    "ws": "8.18.0"
+  }
+}

@@ -1,0 +1,171 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Response",
+  "description": "Text Intelligence analysis response",
+  "type": "object",
+  "required": [
+    "results"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "results": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "summary": {
+          "type": "object",
+          "description": "Summary result (optional, included when summarize parameter is used)",
+          "properties": {
+            "text": {
+              "type": "string",
+              "description": "Generated summary of the analyzed text"
+            }
+          }
+        },
+        "topics": {
+          "type": "object",
+          "description": "Detected topics (optional, included when topics parameter is true)",
+          "properties": {
+            "segments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "description": "Text segment"
+                  },
+                  "start_word": {
+                    "type": "number",
+                    "description": "Starting word index"
+                  },
+                  "end_word": {
+                    "type": "number",
+                    "description": "Ending word index"
+                  },
+                  "topics": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "topic": {
+                          "type": "string",
+                          "description": "Detected topic"
+                        },
+                        "confidence_score": {
+                          "type": "number",
+                          "format": "float",
+                          "description": "Confidence score for the topic"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "sentiments": {
+          "type": "object",
+          "description": "Sentiment analysis (optional, included when sentiment parameter is true)",
+          "properties": {
+            "segments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "description": "Text segment"
+                  },
+                  "start_word": {
+                    "type": "number",
+                    "description": "Starting word index"
+                  },
+                  "end_word": {
+                    "type": "number",
+                    "description": "Ending word index"
+                  },
+                  "sentiment": {
+                    "type": "string",
+                    "enum": [
+                      "positive",
+                      "negative",
+                      "neutral"
+                    ],
+                    "description": "Sentiment classification for this segment"
+                  },
+                  "sentiment_score": {
+                    "type": "number",
+                    "description": "Sentiment score for this segment"
+                  }
+                }
+              }
+            },
+            "average": {
+              "type": "object",
+              "properties": {
+                "sentiment": {
+                  "type": "string",
+                  "enum": [
+                    "positive",
+                    "negative",
+                    "neutral"
+                  ],
+                  "description": "Average sentiment classification"
+                },
+                "sentiment_score": {
+                  "type": "number",
+                  "description": "Average sentiment score"
+                }
+              }
+            }
+          }
+        },
+        "intents": {
+          "type": "object",
+          "description": "Detected intents (optional, included when intents parameter is true)",
+          "properties": {
+            "segments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "description": "Text segment"
+                  },
+                  "start_word": {
+                    "type": "number",
+                    "description": "Starting word index"
+                  },
+                  "end_word": {
+                    "type": "number",
+                    "description": "Ending word index"
+                  },
+                  "intents": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "intent": {
+                          "type": "string",
+                          "description": "Detected intent"
+                        },
+                        "confidence_score": {
+                          "type": "number",
+                          "format": "float",
+                          "description": "Confidence score for the intent"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

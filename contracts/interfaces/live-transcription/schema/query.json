@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "QueryParameters",
+  "description": "Minimal query parameters for live STT transcription scaffolding",
+  "type": "object",
+  "required": [
+    "stream_url"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "stream_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL of live audio stream to transcribe"
+    },
+    "model": {
+      "type": "string",
+      "description": "STT model to use for transcription (e.g., 'nova-3', 'nova-2', 'enhanced')",
+      "default": "nova-3"
+    },
+    "language": {
+      "type": "string",
+      "description": "BCP-47 language tag (e.g., 'en', 'es', 'fr')",
+      "default": "en"
+    }
+  }
+}

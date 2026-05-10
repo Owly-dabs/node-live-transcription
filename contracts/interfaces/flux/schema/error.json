@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Error",
+  "description": "Flux error response for starter applications",
+  "type": "object",
+  "required": [
+    "error"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "error": {
+      "type": "object",
+      "required": [
+        "type",
+        "code",
+        "message"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Error category"
+        },
+        "code": {
+          "type": "string",
+          "description": "Machine-readable error code",
+          "enum": [
+            "INVALID_STREAM_URL",
+            "STREAM_UNREACHABLE",
+            "MODEL_NOT_FOUND",
+            "CONNECTION_FAILED",
+            "AUDIO_FORMAT_ERROR"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "description": "Human-readable error message"
+        },
+        "details": {
+          "type": "object",
+          "description": "Additional error context",
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}

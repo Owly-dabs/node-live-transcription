@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "QueryParameters",
+  "description": "Query parameters for STT transcription (none required - all parameters sent via multipart form data)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {}
+}

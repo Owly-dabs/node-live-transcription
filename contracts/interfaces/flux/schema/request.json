@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AudioData",
+  "description": "Containerized audio data from live stream for Flux processing",
+  "type": "string",
+  "format": "binary",
+  "contentType": "application/octet-stream"
+}

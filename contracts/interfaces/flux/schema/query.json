@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "QueryParameters",
+  "description": "Optional query parameters for Flux WebSocket proxy scaffolding. All parameters are forwarded to the Deepgram Flux API.",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "model": {
+      "type": "string",
+      "description": "Deepgram model to use (e.g., 'nova-3', 'nova-2')",
+      "default": "nova-3"
+    },
+    "encoding": {
+      "type": "string",
+      "description": "Audio encoding format (e.g., 'linear16', 'opus')"
+    },
+    "sample_rate": {
+      "type": "number",
+      "description": "Audio sample rate in Hz (e.g., 16000, 48000)"
+    },
+    "language": {
+      "type": "string",
+      "description": "BCP-47 language tag (e.g., 'en', 'es', 'fr')",
+      "default": "en"
+    }
+  }
+}

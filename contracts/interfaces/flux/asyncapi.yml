@@ -1,0 +1,176 @@
+asyncapi: 3.0.0
+info:
+  title: Flux Interface Contract
+  version: 2.0.0
+  description: |
+    Minimal Flux WebSocket proxy scaffolding for Deepgram starter applications.
+    Send binary audio data, get real-time transcripts via WebSocket.
+  contact:
+    email: devrel@deepgram.com
+    url: https://community.deepgram.com
+    name: Deepgram Developer Relations
+  license:
+    name: Privacy Notice
+    url: https://deepgram.com/privacy/
+  externalDocs:
+    description: Visit our docs to learn more about using Deepgram APIs
+    url: https://developers.deepgram.com
+servers:
+  starter-app:
+    host: "{host}:{port}"
+    protocol: wss
+    description: Starter app development server
+    security:
+      - $ref: "#/components/securitySchemes/ApiKeyAuth"
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: httpApiKey
+      in: header
+      name: Authorization
+      description: API key authentication (handled by starter app proxy)
+  operationTraits:
+    AuthTrait:
+      security:
+        - $ref: "#/components/securitySchemes/ApiKeyAuth"
+  schemas:
+    Model:
+      type: string
+      description: Deepgram model to use
+      default: nova-3
+      examples:
+        - nova-3
+    Language:
+      type: string
+      description: BCP-47 language tag
+      default: en
+      examples:
+        - en
+        - es
+        - fr
+    ErrorEvent:
+      type: object
+      description: Error event
+      required:
+        - type
+        - error
+      properties:
+        type:
+          type: string
+          enum: [Error]
+          description: Message type identifier
+        error:
+          type: object
+          required:
+            - type
+            - code
+            - message
+          properties:
+            type:
+              type: string
+              description: Error category
+            code:
+              type: string
+              enum:
+                - CONNECTION_FAILED
+                - AUDIO_FORMAT_ERROR
+              description: Machine-readable error code
+            message:
+              type: string
+              description: Human-readable error message
+            details:
+              type: object
+              description: Additional error context
+              additionalProperties: true
+    AudioData:
+      type: string
+      format: binary
+      description: Binary audio data (any format supported by Deepgram)
+      contentType: application/octet-stream
+    ControlMessage:
+      type: object
+      description: "Control messages for managing the Flux WebSocket connection"
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - KeepAlive
+            - Finalize
+            - CloseStream
+          description: |
+            Control message type:
+            - KeepAlive: Keep the WebSocket connection open
+            - Finalize: Finalize and flush any remaining audio in the buffer
+            - CloseStream: Request graceful closure of the stream
+  messages:
+    AudioDataMessage:
+      name: AudioDataMessage
+      title: Audio Data
+      description: Binary audio chunks sent from client to server
+      contentType: application/octet-stream
+      payload:
+        $ref: "#/components/schemas/AudioData"
+    ErrorEventMessage:
+      name: ErrorEventMessage
+      title: Error Event
+      description: Error information
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/ErrorEvent"
+    ControlMessage:
+      name: ControlMessage
+      title: Control Message
+      description: Control messages for managing the Flux WebSocket connection
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/ControlMessage"
+channels:
+  FluxStream:
+    address: /api/flux
+    description: Flux WebSocket proxy — forwards audio to Deepgram API, returns transcription results
+    bindings:
+      ws:
+        query:
+          type: object
+          properties:
+            model:
+              $ref: "#/components/schemas/Model"
+            language:
+              $ref: "#/components/schemas/Language"
+    messages:
+      AudioData:
+        $ref: "#/components/messages/AudioDataMessage"
+      ErrorEvent:
+        $ref: "#/components/messages/ErrorEventMessage"
+      Control:
+        $ref: "#/components/messages/ControlMessage"
+operations:
+  ConnectToStream:
+    action: send
+    channel:
+      $ref: "#/channels/FluxStream"
+    description: Connect to Flux proxy and send binary audio data
+    traits:
+      - $ref: "#/components/operationTraits/AuthTrait"
+    messages:
+      - $ref: "#/channels/FluxStream/messages/AudioData"
+  SendControl:
+    action: send
+    channel:
+      $ref: "#/channels/FluxStream"
+    description: "Send control messages (KeepAlive, Finalize, CloseStream) to manage the WebSocket connection"
+    traits:
+      - $ref: "#/components/operationTraits/AuthTrait"
+    messages:
+      - $ref: "#/channels/FluxStream/messages/Control"
+  ReceiveError:
+    action: receive
+    channel:
+      $ref: "#/channels/FluxStream"
+    description: Receive error events from the Flux proxy
+    traits:
+      - $ref: "#/components/operationTraits/AuthTrait"
+    messages:
+      - $ref: "#/channels/FluxStream/messages/ErrorEvent"

@@ -1,0 +1,189 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SettingsMessage",
+  "description": "Initial settings configuration for the Voice Agent",
+  "type": "object",
+  "required": [
+    "type",
+    "audio",
+    "agent"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "Settings",
+      "description": "Message type identifier"
+    },
+    "audio": {
+      "type": "object",
+      "description": "Audio input and output configuration",
+      "required": [
+        "input",
+        "output"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "input": {
+          "type": "object",
+          "description": "Audio input configuration",
+          "required": [
+            "encoding",
+            "sample_rate"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "encoding": {
+              "type": "string",
+              "enum": [
+                "linear16",
+                "linear32",
+                "mulaw"
+              ],
+              "description": "Audio encoding format"
+            },
+            "sample_rate": {
+              "type": "number",
+              "description": "Sample rate in Hz (e.g., 16000, 24000, 48000)"
+            }
+          }
+        },
+        "output": {
+          "type": "object",
+          "description": "Audio output configuration",
+          "required": [
+            "encoding",
+            "sample_rate"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "encoding": {
+              "type": "string",
+              "enum": [
+                "linear16",
+                "mulaw"
+              ],
+              "description": "Audio encoding format for output"
+            },
+            "sample_rate": {
+              "type": "number",
+              "description": "Sample rate in Hz"
+            },
+            "container": {
+              "type": "string",
+              "description": "Audio container format",
+              "default": "none"
+            }
+          }
+        }
+      }
+    },
+    "agent": {
+      "type": "object",
+      "description": "Agent configuration for listen, think, and speak",
+      "required": [
+        "listen",
+        "think",
+        "speak"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "listen": {
+          "type": "object",
+          "description": "Speech-to-text configuration",
+          "required": [
+            "provider"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "provider": {
+              "type": "object",
+              "required": [
+                "type",
+                "model"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "deepgram"
+                  ],
+                  "description": "STT provider type"
+                },
+                "model": {
+                  "type": "string",
+                  "description": "STT model identifier (e.g., 'nova-3', 'nova-2')"
+                }
+              }
+            }
+          }
+        },
+        "think": {
+          "type": "object",
+          "description": "LLM configuration",
+          "required": [
+            "provider"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "provider": {
+              "type": "object",
+              "required": [
+                "type",
+                "model"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "open_ai",
+                    "anthropic",
+                    "google"
+                  ],
+                  "description": "LLM provider type"
+                },
+                "model": {
+                  "type": "string",
+                  "description": "LLM model identifier (e.g., 'gpt-4o-mini', 'claude-3-5-haiku-latest')"
+                }
+              }
+            }
+          }
+        },
+        "speak": {
+          "type": "object",
+          "description": "Text-to-speech configuration",
+          "required": [
+            "provider"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "provider": {
+              "type": "object",
+              "required": [
+                "type",
+                "model"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "deepgram"
+                  ],
+                  "description": "TTS provider type"
+                },
+                "model": {
+                  "type": "string",
+                  "description": "Deepgram TTS model identifier (e.g., 'aura-2-thalia-en', 'aura-asteria-en')"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

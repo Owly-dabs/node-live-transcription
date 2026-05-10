@@ -1,0 +1,153 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AgentResponses",
+  "description": "Voice Agent response messages for starter applications",
+  "oneOf": [
+    {
+      "title": "WelcomeMessage",
+      "description": "Connection confirmation message",
+      "type": "object",
+      "required": [
+        "type",
+        "request_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "Welcome",
+          "description": "Message type identifier"
+        },
+        "request_id": {
+          "type": "string",
+          "description": "Unique request identifier"
+        }
+      }
+    },
+    {
+      "title": "SettingsAppliedEvent",
+      "description": "Confirmation that settings were applied",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "SettingsApplied",
+          "description": "Message type identifier"
+        }
+      }
+    },
+    {
+      "title": "ConversationTextEvent",
+      "description": "Conversation text from user or assistant",
+      "type": "object",
+      "required": [
+        "type",
+        "role",
+        "content"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "ConversationText",
+          "description": "Message type identifier"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "user",
+            "assistant"
+          ],
+          "description": "Speaker role"
+        },
+        "content": {
+          "type": "string",
+          "description": "Spoken text content"
+        }
+      }
+    },
+    {
+      "title": "UserStartedSpeakingEvent",
+      "description": "Notification that user began speaking",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "UserStartedSpeaking",
+          "description": "Message type identifier"
+        }
+      }
+    },
+    {
+      "title": "AgentThinkingEvent",
+      "description": "Notification that agent is processing",
+      "type": "object",
+      "required": [
+        "type",
+        "content"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "AgentThinking",
+          "description": "Message type identifier"
+        },
+        "content": {
+          "type": "string",
+          "description": "Agent's thought process"
+        }
+      }
+    },
+    {
+      "title": "AgentAudioDoneEvent",
+      "description": "Notification that agent finished sending audio",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "AgentAudioDone",
+          "description": "Message type identifier"
+        }
+      }
+    },
+    {
+      "title": "WarningEvent",
+      "description": "Warning event for non-fatal issues",
+      "type": "object",
+      "required": [
+        "type",
+        "description",
+        "code"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "Warning",
+          "description": "Message type identifier"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable warning description"
+        },
+        "code": {
+          "type": "string",
+          "description": "Machine-readable warning code"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Transcript",
+  "description": "STT transcription response for starter applications",
+  "type": "object",
+  "required": [
+    "transcript"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "transcript": {
+      "type": "string",
+      "description": "Full transcribed text"
+    },
+    "words": {
+      "type": "array",
+      "description": "Word-level timing and speaker information",
+      "items": {
+        "type": "object",
+        "required": [
+          "text",
+          "start",
+          "end"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "The transcribed word"
+          },
+          "start": {
+            "type": "number",
+            "description": "Start time in seconds"
+          },
+          "end": {
+            "type": "number",
+            "description": "End time in seconds"
+          },
+          "speaker": {
+            "type": "string",
+            "description": "Speaker identifier (when diarization is enabled)"
+          }
+        }
+      }
+    },
+    "duration": {
+      "type": "number",
+      "description": "Total audio duration in seconds"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional transcription metadata",
+      "additionalProperties": true
+    }
+  }
+}

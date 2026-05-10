@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "QueryParameters",
+  "description": "Minimal query parameters for TTS synthesis scaffolding",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "model": {
+      "type": "string",
+      "description": "TTS model to use for synthesis (e.g., 'aura-2-apollo-en', 'aura-2-asteria-en', 'aura-2-iris-en')"
+    }
+  }
+}
